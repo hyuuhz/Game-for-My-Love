@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>For My Love 💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    background: #ffe6f0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+canvas {
+    background: #fff;
+    border: 2px solid #ff4d88;
+    margin: 10px auto;
+    display: block;
+}
+
+.controls button {
+    width: 60px;
+    height: 60px;
+    margin: 3px;
+    font-size: 22px;
+    border-radius: 12px;
+    border: none;
+    background: #ff4d88;
+    color: white;
+}
+
+#vidas {
+    font-size: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>💖 Jogo do Amor 💖</h2>
+<p id="faseText">Fase 1</p>
+<p id="vidas">❤️❤️❤️</p>
+
+<canvas id="game" width="300" height="300"></canvas>
+
+<div class="controls">
+    <button onclick="move('up')">⬆️</button><br>
+    <button onclick="move('left')">⬅️</button>
+    <button onclick="move('down')">⬇️</button>
+    <button onclick="move('right')">➡️</button>
+</div>
+
+<audio id="music" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+</audio>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const music = document.getElementById("music");
+
+let fase = 1;
+const maxFases = 5;
+let vidas = 3;
+
+let player = { x: 20, y: 20, size: 20 };
+let target = { x: 260, y: 260, size: 25 };
+
+const tile = 30;
+
+// LABIRINTO (1 = parede)
+const maze = [
+ [1,1,1,1,1,1,1,1,1,1],
+ [1,0,0,0,1,0,0,0,0,1],
+ [1,0,1,0,1,0,1,1,0,1],
+ [1,0,1,0,0,0,0,1,0,1],
+ [1,0,1,1,1,1,0,1,0,1],
+ [1,0,0,0,0,1,0,0,0,1],
+ [1,1,1,1,0,1,1,1,0,1],
+ [1,0,0,1,0,0,0,1,0,1],
+ [1,0,0,0,0,1,0,0,0,1],
+ [1,1,1,1,1,1,1,1,1,1]
+];
+
+let enemies = [];
+
+document.addEventListener("click", () => music.play().catch(()=>{}), { once:true });
+
+function atualizarVidas() {
+    document.getElementById("vidas").innerText = "❤️".repeat(vidas);
+}
+
+function setupFase() {
+    player.x = 20;
+    player.y = 20;
+    vidas = 3;
+    atualizarVidas();
+
+    enemies = [];
+    for (let i = 0; i < fase; i++) {
+        enemies.push({
+            x: 150 + Math.random()*50,
+            y: 150 + Math.random()*50,
+            dx: Math.random() > 0.5 ? 2 : -2,
+            dy: Math.random() > 0.5 ? 2 : -2,
+            size: 20
+        });
+    }
+}
+
+setupFase();
+
+function move(dir) {
+    let nx = player.x;
+    let ny = player.y;
+    const speed = 15;
+
+    if (dir === "up") ny -= speed;
+    if (dir === "down") ny += speed;
+    if (dir === "left") nx -= speed;
+    if (dir === "right") nx += speed;
+
+    const col = Math.floor(nx / tile);
+    const row = Math.floor(ny / tile);
+
+    if (maze[row] && maze[row][col] === 0) {
+        player.x = nx;
+        player.y = ny;
+    }
+}
+
+document.addEventListener("keydown", e => {
+    if (e.key.includes("Arrow"))
+        move(e.key.replace("Arrow","").toLowerCase());
+});
+
+function colide(a, b) {
+    return a.x < b.x + b.size &&
+           a.x + a.size > b.x &&
+           a.y < b.y + b.size &&
+           a.y + a.size > b.y;
+}
+
+function perdeuVida() {
+    vidas--;
+    atualizarVidas();
+    player.x = 20;
+    player.y = 20;
+
+    if (vidas <= 0) {
+        alert("você pode tentar de novo eu nunca vou desistir de você sempre vou estar te esperando");
+        setupFase();
+    }
+}
+
+function nextFase() {
+    if (fase < maxFases) {
+        fase++;
+        document.getElementById("faseText").innerText = "Fase " + fase;
+        setupFase();
+    } else {
+        alert(
+`🎂 FELIZ ANIVERSÁRIO MEU AMOR 🎂
+
+Que seu dia seja tão lindo quanto seu sorriso.
+Eu te amo mais do que palavras conseguem explicar.
+Obrigado por existir, por ser você,
+e por fazer meu mundo melhor todos os dias.
+
+💖 Eu te amo hoje, amanhã e sempre 💖`
+        );
+        fase = 1;
+        document.getElementById("faseText").innerText = "Fase 1";
+        setupFase();
+    }
+}
+
+function drawMaze(Amor    for (let r = 0; r < maze.length; r++) {
+        for (let c = 0; c < maze[r].length; c++) {
+            if (maze[r][c] === 1) {
+                ctx.fillStyle = "#ffb3cc";
+                ctx.fillRect(c*tile, r*tile, tile, tile);
+            }
+        }
+    }
+}
+
+function draw() {
+    ctx.clearRect(0,0,300,300);
+    drawMaze();
+
+    ctx.font = "20px Arial";
+    ctx.fillText("❤️", player.x, player.y);
+
+    ctx.font = "24px Arial";
+    ctx.fillText("👩", target.x, target.y);
+
+    enemies.forEach(e => {
+        e.x += e.dx;
+        e.y += e.dy;
+
+        if (Math.random() < 0.02) e.dx *= -1;
+        if (Math.random() < 0.02) e.dy *= -1;
+
+        ctx.font = "20px Arial";
+        ctx.fillText("👻", e.x, e.y);
+
+        if (colide(player, e)) perdeuVida();
+    });
+
+    if (colide(player, target)) nextFase();
+
+    requestAnimationFrame(draw);
+}
+
+draw();
+</script>
+
+</body>
+  </html>
+  
